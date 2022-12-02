@@ -1,4 +1,23 @@
-export function transform({
+export type UserObject = {
+  id: number
+  name: string
+  login: string
+  tagline: string
+  nickname: string
+  avatarUrl: string
+  avatarLargeUrl: string
+  topicsCount: number
+  repliesCount: number
+  followersCount: number
+  followingCount: number
+  favoritesCount: number
+  isFollowed: boolean
+  isBlocked: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export function transformKeys({
   id,
   name,
   login,
@@ -13,14 +32,14 @@ export function transform({
   tagline,
   created_at,
   updated_at
-}) {
+}: Record<string, any>): UserObject {
   return {
     id,
     name,
     login,
     tagline,
     nickname: name || login,
-    avatarUrl: avatar_url?.replace(/large$/, 'md'),
+    avatarUrl: avatarUrl(avatar_url),
     avatarLargeUrl: avatar_url,
     topicsCount: topics_count,
     repliesCount: replies_count,
@@ -34,6 +53,6 @@ export function transform({
   }
 }
 
-export function eachTransform(data) {
-  return data.map((item) => transform(item))
+export function avatarUrl(url: string) {
+  return url?.replace(/large$/, 'md')
 }

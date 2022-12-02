@@ -1,4 +1,15 @@
-export function transform({
+export type NodeObject = {
+  id: number
+  name: string
+  summary: string
+  parentId: number
+  parentName: string
+  topicsCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export function transformKeys({
   id,
   name,
   summary,
@@ -7,7 +18,7 @@ export function transform({
   topics_count,
   created_at,
   updated_at
-}) {
+}: Record<string, any>): NodeObject {
   return {
     id,
     name,
@@ -18,8 +29,4 @@ export function transform({
     createdAt: created_at,
     updatedAt: updated_at
   }
-}
-
-export function eachTransform(data) {
-  return data.map((item) => transform(item))
 }
