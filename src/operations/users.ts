@@ -1,6 +1,15 @@
 import type { AxiosInstance } from 'axios'
+import type { TopicObject } from '../models/topic'
+import type { ReplyObject } from '../models/reply'
 import type { UserObject } from '../models/user'
 import { transformKeys } from '../models/user'
+import { transformKeys as transformReplyKeys } from '../models/reply'
+import { transformKeys as transformTopicKeys } from '../models/topic'
+
+export type ListParams = {
+  offset?: number
+  limit?: number
+}
 
 function list(axios: AxiosInstance) {
   return async function allUsers(params: { limit?: number } = {}) {
@@ -10,7 +19,7 @@ function list(axios: AxiosInstance) {
 }
 
 function retrieve(axios: AxiosInstance) {
-  return async function getUser(userId: number) {
+  return async function getUser(userId: number | string) {
     const { data } = await axios.get(`/users/${userId}.json`)
     const { blocked, followed } = data.meta
     const user = transformKeys(data.user)
@@ -24,63 +33,96 @@ function retrieve(axios: AxiosInstance) {
   }
 }
 
-// async function me() {
-//   const { data } = await http.get('/users/me.json')
-//   const user = userProps.transform(data.user)
-//   return { user }
-// }
+function currentUser(axios: AxiosInstance) {
+  return async function getUserMe() {
+    const { data } = await axios.get('/users/me.json')
+    return transformKeys(data.user)
+  }
+}
 
-// async function follow(targetId) {
-//   const { data } = await http.post(`/users/${targetId}/follow`)
-//   return data
-// }
+function follow(axios: AxiosInstance) {
+  return async function followUser(targetId: number | string) {
+    const { data } = await axios.post(`/users/${targetId}/follow`)
+    return data
+  }
+}
 
-// async function unfollow(targetId) {
-//   const { data } = await http.post(`/users/${targetId}/unfollow`)
-//   return data
-// }
+function unfollow(axios: AxiosInstance) {
+  return async function unfollowUser(targetId: number | string) {
+    const { data } = await axios.post(`/users/${targetId}/unfollow`)
+    return data
+  }
+}
 
-// async function listTopics(userId) {
-//   const { data } = await http.get(`/users/${userId}/topics.json`)
-//   const topics = topicProps.eachTransform(data.topics)
-//   return { topics }
-// }
+function topics(axios: AxiosInstance) {
+  return async function listTopics(
+    userId: number | string,
+    params: ListParams = {}
+  ) {
+    const { data } = await axios.get(`/users/${userId}/topics.json`, { params })
+    return data.topics.map(transformTopicKeys) as TopicObject[]
+  }
+}
 
-// async function listReplies(userId) {
-//   const { data } = await http.get(`/users/${userId}/replies.json`)
-//   const replies = replyProps.eachTransform(data.replies)
-//   return { replies }
-// }
+function replies(axios: AxiosInstance) {
+  return async function listReplies(
+    userId: number | string,
+    params: ListParams = {}
+  ) {
+    const { data } = await axios.get(`/users/${userId}/replies.json`, {
+      params
+    })
+    return data.replies.map(transformReplyKeys) as ReplyObject[]
+  }
+}
 
-// async function listFavorites(userId) {
-//   const { data } = await http.get(`/users/${userId}/favorites.json`)
-//   const favorites = topicProps.eachTransform(data.topics)
-//   return { favorites }
-// }
+function favorites(axios: AxiosInstance) {
+  return async function listFavorites(
+    userId: number | string,
+    params: ListParams = {}
+  ) {
+    const { data } = await axios.get(`/users/${userId}/favorites.json`, {
+      params
+    })
+    return data.topics.map(transformTopicKeys) as TopicObject[]
+  }
+}
 
-// async function listFollowers(userId) {
-//   const { data } = await http.get(`/users/${userId}/followers.json`)
-//   const followers = userProps.eachTransform(data.followers)
-//   return { followers }
-// }
+function followers(axios: AxiosInstance) {
+  return async function listFollowers(
+    userId: number | string,
+    params: ListParams = {}
+  ) {
+    const { data } = await axios.get(`/users/${userId}/followers.json`, {
+      params
+    })
+    return data.followers.map(transformKeys) as UserObject[]
+  }
+}
 
-// async function listFollowing(userId) {
-//   const { data } = await http.get(`/users/${userId}/following.json`)
-//   const following = userProps.eachTransform(data.following)
-//   return { following }
-// }
-//   me,
-//   follow,
-//   unfollow,
-//   listTopics,
-//   listReplies,
-//   listFavorites,
-//   listFollowers,
-//   listFollowing
+function following(axios: AxiosInstance) {
+  return async function listFollowing(
+    userId: number | string,
+    params: ListParams = {}
+  ) {
+    const { data } = await axios.get(`/users/${userId}/following.json`, {
+      params
+    })
+    return data.following.map(transformKeys) as UserObject[]
+  }
+}
 
 export function build(axios: AxiosInstance) {
   return {
     list: list(axios),
-    retrieve: retrieve(axios)
+    retrieve: retrieve(axios),
+    me: currentUser(axios),
+    follow: follow(axios),
+    unfollow: unfollow(axios),
+    listTopics: topics(axios),
+    listReplies: replies(axios),
+    listFavorites: favorites(axios),
+    listFollowers: followers(axios),
+    listFollowing: following(axios)
   }
 }

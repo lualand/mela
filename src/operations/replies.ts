@@ -1,7 +1,11 @@
 import type { AxiosInstance } from 'axios'
 import type { ReplyObject } from '../models/reply'
-import { getNextCursor } from '../helpers/query'
 import { transformKeys } from '../models/reply'
+import { getNextCursor } from '../utils'
+
+export type ReplyParams = {
+  body: string
+}
 
 function list(axios: AxiosInstance) {
   return async function listReplies(
@@ -13,8 +17,8 @@ function list(axios: AxiosInstance) {
     })
     const replies = data.replies.map(transformKeys) as ReplyObject[]
     const nextCursor = getNextCursor(replies, params)
-
-    return { replies, nextCursor }
+    const hasMore = !!nextCursor
+    return { replies, hasMore, nextCursor }
   }
 }
 
@@ -26,36 +30,41 @@ function retrieve(axios: AxiosInstance) {
 }
 
 function create(axios: AxiosInstance) {
-  return async function createReply() {
-    const { data } = await axios.post('/replies')
+  return async function createReply(topicId: number, { body }: ReplyParams) {
+    const { data } = await axios.post(`/topics/${topicId}/replies`, { body })
     return data
   }
 }
 
 function update(axios: AxiosInstance) {
-  return async function updateReply(replyId: number) {
-    const { data } = await axios.put(`/replies/${replyId}.json`)
+  return async function updateReply(replyId: number, { body }: ReplyParams) {
+    const { data } = await axios.put(`/replies/${replyId}`, { body })
     return data
   }
 }
 
 function remove(axios: AxiosInstance) {
   return async function removeReply(replyId: number) {
-    const { data } = await axios.delete(`/replies/${replyId}.json`)
+    const { data } = await axios.delete(`/replies/${replyId}`)
     return data
   }
 }
 
 function like(axios: AxiosInstance) {
   return async function createReplyLike(targetId: number) {
-    const { data } = await axios.post('/likes', { data: { obj_type: 'reply', obj_id: targetId } })
+    const { data } = await axios.post('/likes', {
+      obj_type: 'reply',
+      obj_id: targetId
+    })
     return data
   }
 }
 
 function unlike(axios: AxiosInstance) {
   return async function removeReplyLike(targetId: number) {
-    const { data } = await axios.delete('/likes', { data: { obj_type: 'reply', obj_id: targetId } })
+    const { data } = await axios.delete('/likes', {
+      data: { obj_type: 'reply', obj_id: targetId }
+    })
     return data
   }
 }

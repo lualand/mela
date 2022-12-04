@@ -11,3 +11,9 @@ export function build(
     }
   })
 }
+
+export function authRequest(baseUrl: string) {
+  return axios.create({
+    baseURL: baseUrl
+  })
+}

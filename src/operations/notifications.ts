@@ -18,7 +18,7 @@ function markAsRead(axios: AxiosInstance) {
 
 function remove(axios: AxiosInstance) {
   return async function removeNotification(notificationId: number) {
-    const { data } = await axios.delete(`/notifications/${notificationId}.json`)
+    const { data } = await axios.delete(`/notifications/${notificationId}`)
     return data
   }
 }

@@ -9,6 +9,12 @@ export type ListTopicsParams = {
   type?: 'popular' | 'recent' | 'excellent' | 'last_actived'
 }
 
+export type TopicParams = {
+  nodeId: number
+  title: string
+  body: string
+}
+
 function list(axios: AxiosInstance) {
   return async function listTopics(params: ListTopicsParams = {}) {
     const { data } = await axios.get('/topics.json', { params })
@@ -33,40 +39,52 @@ function retrieve(axios: AxiosInstance) {
 }
 
 function create(axios: AxiosInstance) {
-  return async function createTopic() {
-    const { data } = await axios.post('/topics')
+  return async function createTopic({ title, body, nodeId }: TopicParams) {
+    const { data } = await axios.post('/topics', {
+      title,
+      body,
+      node_id: nodeId
+    })
     return data
   }
-
-  // title
-  // node_id
-  // body
 }
 
 function update(axios: AxiosInstance) {
-  return async function updateTopic(topicId: number) {
-    const { data } = await axios.put(`/topics/${topicId}.json`)
+  return async function updateTopic(
+    topicId: number,
+    { title, body, nodeId }: TopicParams
+  ) {
+    const { data } = await axios.put(`/topics/${topicId}`, {
+      title,
+      body,
+      node_id: nodeId
+    })
     return data
   }
 }
 
 function remove(axios: AxiosInstance) {
   return async function deleteTopic(topicId: number) {
-    const { data } = await axios.delete(`/topics/${topicId}.json`)
-    return data
+    await axios.delete(`/topics/${topicId}`)
+    return true
   }
 }
 
 function like(axios: AxiosInstance) {
   return async function createTopicLike(targetId: number) {
-    const { data } = await axios.post('/likes', { data: { obj_type: 'topic', obj_id: targetId } })
+    const { data } = await axios.post('/likes', {
+      obj_type: 'topic',
+      obj_id: targetId
+    })
     return data
   }
 }
 
 function unlike(axios: AxiosInstance) {
   return async function removeTopicLike(targetId: number) {
-    const { data } = await axios.delete('/likes', { data: { obj_type: 'topic', obj_id: targetId } })
+    const { data } = await axios.delete('/likes', {
+      data: { obj_type: 'topic', obj_id: targetId }
+    })
     return data
   }
 }
@@ -111,6 +129,6 @@ export function build(axios: AxiosInstance) {
     follow: follow(axios),
     unfollow: unfollow(axios),
     favorite: favorite(axios),
-    unfavorite: unfavorite(axios),
+    unfavorite: unfavorite(axios)
   }
 }
