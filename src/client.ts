@@ -1,11 +1,11 @@
 import type { AxiosInstance } from 'axios'
-import { build, authRequest } from './axios'
-import * as users from './operations/users'
-import * as nodes from './operations/nodes'
-import * as topics from './operations/topics'
-import * as photos from './operations/photos'
-import * as replies from './operations/replies'
-import * as notifications from './operations/notifications'
+import * as users from './actions/users'
+import * as nodes from './actions/nodes'
+import * as topics from './actions/topics'
+import * as photos from './actions/photos'
+import * as replies from './actions/replies'
+import * as notifications from './actions/notifications'
+import { apiRequest, authRequest } from './axios'
 
 export type ClientOpts = {
   baseUrl?: string
@@ -22,7 +22,7 @@ export class Client {
   readonly notifications: ReturnType<typeof notifications.build>
 
   constructor({ auth, baseUrl }: ClientOpts = {}) {
-    this.axios = build(auth, baseUrl)
+    this.axios = apiRequest(auth, baseUrl)
     this.users = users.build(this.axios)
     this.nodes = nodes.build(this.axios)
     this.topics = topics.build(this.axios)

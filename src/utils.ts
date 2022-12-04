@@ -1,6 +1,18 @@
-export function getNextCursor(
-  data: any[],
-  { offset = 0, limit = 25 }: { offset?: number; limit?: number } = {}
+export type PaginatedArgs = {
+  offset?: number
+  limit?: number
+}
+
+export function withNextCursor<T>(
+  data: T[],
+  { offset = 0, limit = 25 }: PaginatedArgs
 ) {
-  return data.length === limit ? offset + limit : undefined
+  const nextCursor = data.length === limit ? offset + limit : undefined
+  const hasMore = !!nextCursor
+
+  return {
+    nextCursor,
+    hasMore,
+    data
+  }
 }

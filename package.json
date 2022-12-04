@@ -1,7 +1,7 @@
 {
   "name": "@tosslate/mela",
   "main": "dist/index.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "scripts": {
     "dev": "tsc --watch",

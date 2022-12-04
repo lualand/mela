@@ -1,7 +1,8 @@
 import type { AxiosInstance } from 'axios'
+import type { PaginatedArgs } from '../utils'
 import type { ReplyObject } from '../models/reply'
 import { transformKeys } from '../models/reply'
-import { getNextCursor } from '../utils'
+import { withNextCursor } from '../utils'
 
 export type ReplyParams = {
   body: string
@@ -10,15 +11,13 @@ export type ReplyParams = {
 function list(axios: AxiosInstance) {
   return async function listReplies(
     topicId: number,
-    params: { offset?: number; limit?: number } = {}
+    params: PaginatedArgs = {}
   ) {
     const { data } = await axios.get(`/topics/${topicId}/replies.json`, {
       params
     })
     const replies = data.replies.map(transformKeys) as ReplyObject[]
-    const nextCursor = getNextCursor(replies, params)
-    const hasMore = !!nextCursor
-    return { replies, hasMore, nextCursor }
+    return withNextCursor(replies, params)
   }
 }
 
@@ -44,7 +43,7 @@ function update(axios: AxiosInstance) {
 }
 
 function remove(axios: AxiosInstance) {
-  return async function removeReply(replyId: number) {
+  return async function deleteReply(replyId: number) {
     const { data } = await axios.delete(`/replies/${replyId}`)
     return data
   }
@@ -61,7 +60,7 @@ function like(axios: AxiosInstance) {
 }
 
 function unlike(axios: AxiosInstance) {
-  return async function removeReplyLike(targetId: number) {
+  return async function deleteReplyLike(targetId: number) {
     const { data } = await axios.delete('/likes', {
       data: { obj_type: 'reply', obj_id: targetId }
     })

@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export function build(
+export function apiRequest(
   auth: string,
   baseUrl: string = 'https://ruby-china.org/api/v3'
 ) {

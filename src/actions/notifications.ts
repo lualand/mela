@@ -1,23 +1,22 @@
 import type { AxiosInstance } from 'axios'
+import type { PaginatedArgs } from '../utils'
 
 function list(axios: AxiosInstance) {
-  return async function allNotifications(
-    params: { offset?: number; limit?: number } = {}
-  ) {
+  return async function listNotifications(params: PaginatedArgs = {}) {
     const { data } = await axios.get('/notifications.json', { params })
     return data
   }
 }
 
 function markAsRead(axios: AxiosInstance) {
-  return async function markAsRead(ids: number[]) {
+  return async function setNotifications(ids: number[]) {
     const { data } = await axios.post('/notifications/read', { ids })
     return data
   }
 }
 
 function remove(axios: AxiosInstance) {
-  return async function removeNotification(notificationId: number) {
+  return async function deleteNotification(notificationId: number) {
     const { data } = await axios.delete(`/notifications/${notificationId}`)
     return data
   }

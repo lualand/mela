@@ -1,8 +1,9 @@
 import type { AxiosInstance } from 'axios'
 import type { TopicObject } from '../models/topic'
 import { transformKeys } from '../models/topic'
+import { withNextCursor } from '../utils'
 
-export type ListTopicsParams = {
+export type ListTopicsArgs = {
   node_id?: number
   offset?: number
   limit?: number
@@ -16,9 +17,10 @@ export type TopicParams = {
 }
 
 function list(axios: AxiosInstance) {
-  return async function listTopics(params: ListTopicsParams = {}) {
+  return async function listTopics(params: ListTopicsArgs = {}) {
     const { data } = await axios.get('/topics.json', { params })
-    return data.topics.map(transformKeys) as TopicObject[]
+    const topics = data.topics.map(transformKeys) as TopicObject[]
+    return withNextCursor(topics, params)
   }
 }
 
@@ -41,9 +43,9 @@ function retrieve(axios: AxiosInstance) {
 function create(axios: AxiosInstance) {
   return async function createTopic({ title, body, nodeId }: TopicParams) {
     const { data } = await axios.post('/topics', {
+      node_id: nodeId,
       title,
-      body,
-      node_id: nodeId
+      body
     })
     return data
   }
@@ -55,9 +57,9 @@ function update(axios: AxiosInstance) {
     { title, body, nodeId }: TopicParams
   ) {
     const { data } = await axios.put(`/topics/${topicId}`, {
+      node_id: nodeId,
       title,
-      body,
-      node_id: nodeId
+      body
     })
     return data
   }
@@ -65,8 +67,8 @@ function update(axios: AxiosInstance) {
 
 function remove(axios: AxiosInstance) {
   return async function deleteTopic(topicId: number) {
-    await axios.delete(`/topics/${topicId}`)
-    return true
+    const { data } = await axios.delete(`/topics/${topicId}`)
+    return data
   }
 }
 
@@ -81,7 +83,7 @@ function like(axios: AxiosInstance) {
 }
 
 function unlike(axios: AxiosInstance) {
-  return async function removeTopicLike(targetId: number) {
+  return async function deleteTopicLike(targetId: number) {
     const { data } = await axios.delete('/likes', {
       data: { obj_type: 'topic', obj_id: targetId }
     })
